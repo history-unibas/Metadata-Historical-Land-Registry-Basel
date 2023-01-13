@@ -46,9 +46,9 @@ def query_series():
 
 def get_series(series_data):
     # Extract the series attributes of interest and store them in a dataframe
-    df_series = pd.DataFrame(columns=['identifier', 'title', 'link'])
+    df_series = pd.DataFrame(columns=['stabsId', 'title', 'link'])
     for serie in series_data:
-        df_serie = pd.DataFrame({'identifier': [serie['identifier']], 'title': [serie['title']], 'link': [serie['link']]})
+        df_serie = pd.DataFrame({'stabsId': [serie['identifier']], 'title': [serie['title']], 'link': [serie['link']]})
         df_series = pd.concat([df_series, df_serie], ignore_index=True)
     return df_series
 
@@ -101,12 +101,12 @@ def get_dossiers(link_serie):
     # Given a serie url, the function queries all corresponding dossier information as dataframe
     dossiers = query_dossiers(link_serie)
     if dossiers:
-        df_dossiers = pd.DataFrame(columns=['identifier', 'title', 'houseNameBS', 'oldHousenumber', 'owner1862',
+        df_dossiers = pd.DataFrame(columns=['stabsId', 'title', 'houseName', 'oldHousenumber', 'owner1862',
                                             'descriptiveNote', 'link'])
         for dossier in dossiers:
-            df_dossier = pd.DataFrame({'identifier': [dossier.get('identifier')],
+            df_dossier = pd.DataFrame({'stabsId': [dossier.get('identifier')],
                                        'title': [dossier.get('title')],
-                                       'houseNameBS': [dossier.get('housenamebs')],
+                                       'houseName': [dossier.get('housenamebs')],
                                        'oldHousenumber': [dossier.get('oldhousenumber')],
                                        'owner1862': [dossier.get('owner1862')],
                                        'descriptiveNote': [dossier.get('note')],
@@ -134,10 +134,10 @@ if __name__ == "__main__":
     series_data = get_series(series_data)
 
     # Generate the "project_id" of the series
-    series_data['serie_id'] = series_data.apply(lambda row: get_serie_id(row['identifier']), axis=1)
+    series_data['serieId'] = series_data.apply(lambda row: get_serie_id(row['stabsId']), axis=1)
 
     # Get all dossiers from all series
-    all_dossiers = pd.DataFrame(columns=['identifier', 'title', 'houseNameBS', 'oldHousenumber', 'owner1862',
+    all_dossiers = pd.DataFrame(columns=['dossierId', 'title', 'houseName', 'oldHousenumber', 'owner1862',
                                          'descriptiveNote', 'link'])
     for index, row in series_data.iterrows():
         print('Query dossier', row['link'], '...')
@@ -148,12 +148,12 @@ if __name__ == "__main__":
             continue
         else:
             # Add series_id to dossiers
-            dossiers['serie_id'] = row['serie_id']
+            dossiers['serieId'] = row['serieId']
 
             all_dossiers = pd.concat([all_dossiers, dossiers], ignore_index=True)
 
     # Generate the "project_id" of the dossiers
-    all_dossiers['dossier_id'] = all_dossiers.apply(lambda row: get_dossier_id(row['identifier']), axis=1)
+    all_dossiers['dossierId'] = all_dossiers.apply(lambda row: get_dossier_id(row['stabsId']), axis=1)
 
     # Write the data created
     series_data.to_csv("series.csv", index=False, header=True)
