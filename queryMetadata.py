@@ -4,8 +4,6 @@
 
 """
 Script to query the metadata of the 'Historische Grundbuch Basel' from the Staatsarchiv.
-
-SPARQL endpoint of Staatsarchiv Basel: https://ld.staatsarchiv.bs.ch/sparql/
 """
 
 
