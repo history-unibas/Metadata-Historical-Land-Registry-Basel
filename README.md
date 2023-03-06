@@ -11,8 +11,7 @@ This repository contains Python scripts for processing metadata of the Historica
 - More information about the historical land register can be found in German at https://www.staatsarchiv.bs.ch/benutzung/recherche/suche-gedruckte-kataloge/historisches-grundbuch.html.
 
 ## queryMetadata.py
-- Script to query the metadata of the 'Historische Grundbuch Basel (HGB)' from the Staatsarchiv.
-- Selected attributes are processed for the entities "series" and "dossier". In addition, the attributes serieId and dossierId were generated as identifiers.
+This script contains functions to query metadata of the "Historische Grundbuch Basel (HGB)" from the Staatsarchiv. Additional functions allow to extract attributes of interest for the entities "Serie" and "Dossier" as used in our research project.
 
 ## Contact
-For questions contact jonas.fuerstenberger@unibas.ch.
+For questions please contact jonas.aeby@unibas.ch.
