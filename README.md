@@ -14,7 +14,7 @@ This repository contains Python scripts for processing metadata of the Historica
 This script contains functions to query metadata of the "Historische Grundbuch Basel (HGB)" from the Staatsarchiv. The SPARQL endpoint of the Staatarchiv can be accessed at https://ld.staatsarchiv.bs.ch/sparql/. Additional functions allow to extract attributes of interest for the entities "Serie" and "Dossier" as used in our research project. The functions are used in particular in the following script: https://github.com/history-unibas/Postgresql-Project-Database/blob/main/updateProjectDatabase.py.
 
 ## enrichMetadata.py
-Enriches the metadata of the 'Historische Grundbuch Basel' from the Staatsarchiv by creating additional attributes. The databasis of this script was created by the function processing_metadat() within https://github.com/history-unibas/Postgresql-Project-Database/blob/main/updateProjectDatabase.py.
+Enriches the metadata of the 'Historische Grundbuch Basel' from the Staatsarchiv by creating additional attributes. The databasis of this script was created by the function processing_metadata() within https://github.com/history-unibas/Postgresql-Project-Database/blob/main/updateProjectDatabase.py.
 
 Additional attributes are included in the resulting dataframe 'dossiers_series'. The following table describes each of these additional attributes.
 
