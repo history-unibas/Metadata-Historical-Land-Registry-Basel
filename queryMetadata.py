@@ -90,7 +90,7 @@ def query_dossiers(link_serie):
     sparql.setQuery("""
         PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
         PREFIX stabs-rico:
-            <https://ld.staatsarchiv.bs.ch/ontologies/StABS-RiC/>
+            <https://ld.bs.ch/ontologies/StABS-RiC/>
         SELECT ?link ?identifier ?title ?note ?housenamebs ?oldhousenumber
             ?owner1862
             WHERE {{
