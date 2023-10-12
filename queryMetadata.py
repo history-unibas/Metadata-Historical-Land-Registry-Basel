@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+"""Script to query the metadata of the 'Historische Grundbuch Basel'.
 
-
-"""
-Script to query the metadata of the 'Historische Grundbuch Basel' from the Staatsarchiv.
+This module provides specific functions for querying metadata, which is made
+available in the Linked Open Data Portal of the State Archives Basel-Stadt.
 """
 
 
@@ -14,26 +12,31 @@ import logging
 
 
 def query_series():
-    # Query all Series of interest of the "Historisches Grundbuch Basel"
-    
-    sparql = SPARQLWrapper("https://ld.staatsarchiv.bs.ch/query/")
+    """Query all series of interest of the "Historisches Grundbuch Basel".
+    Args:
+        None.
+
+    Returns:
+        list: Metadata of series from the HGB1.
+    """
+    sparql = SPARQLWrapper("https://ld.bs.ch/query/")
     sparql.setReturnFormat(JSON)
     sparql.setQuery("""
-            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-            SELECT ?link ?identifier ?title
-            WHERE {
-                {
-                ?link rico:identifier ?identifier ;
-                rico:title ?title ;
-                rico:type "Akte"@ger ;
-                rico:isOrWasIncludedIn <https://ld.staatsarchiv.bs.ch/Record/1027330> .
-                }
+        PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+        SELECT ?link ?identifier ?title
+        WHERE {
+            {
+            ?link rico:identifier ?identifier ;
+            rico:title ?title ;
+            rico:type "Akte"@ger ;
+            rico:isOrWasIncludedIn <https://ld.bs.ch/ais/Record/1027330> .
             }
-            """
+        }
+        """
                     )
     ret = sparql.queryAndConvert()
 
-    # Store the data as transformed list
+    # Store the data as transformed list.
     series_list = []
     for r in ret["results"]["bindings"]:
         serie = {}
@@ -44,32 +47,52 @@ def query_series():
 
 
 def get_series(series_data):
-    # Extract the series attributes of interest and store them in a dataframe
-    
+    """Extract the series attributes of interest and store them in a dataframe.
+    Args:
+        series_data (list): List of series metadata created by query_series().
+
+    Returns:
+        DataFrame: Table of series metadata.
+    """
     df_series = pd.DataFrame(columns=['stabsId', 'title', 'link'])
     for serie in series_data:
-        df_serie = pd.DataFrame({'stabsId': [serie['identifier']], 'title': [serie['title']], 'link': [serie['link']]})
+        df_serie = pd.DataFrame({'stabsId': [serie['identifier']],
+                                 'title': [serie['title']],
+                                 'link': [serie['link']]}
+                                )
         df_series = pd.concat([df_series, df_serie], ignore_index=True)
     return df_series
 
 
 def get_serie_id(identifier):
-    # Based on the identifier of the serie, create the project id
-    
+    """Based on the identifier of the serie, create the project id.
+    Args:
+        identifier (list): List of series metadata created by query_series().
+
+    Returns:
+        DataFrame: Table of series metadata.
+    """
     identifier = identifier.split(" ")
     identifier = f"HGB_{identifier[1]}_{int(identifier[2]):03}"
     return identifier
 
 
 def query_dossiers(link_serie):
-    # Given a serie url, all dossiers where queried
-    
-    sparql = SPARQLWrapper("https://ld.staatsarchiv.bs.ch/query/")
+    """Given a serie URI, all connected dossier where queried.
+    Args:
+        link_serie (str): URI of a serie.
+
+    Returns:
+        list or None: Metadata of connected dossiers.
+    """
+    sparql = SPARQLWrapper("https://ld.bs.ch/query/")
     sparql.setReturnFormat(JSON)
     sparql.setQuery("""
         PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-        PREFIX stabs-rico: <https://ld.staatsarchiv.bs.ch/ontologies/StABS-RiC/>
-        SELECT ?link ?identifier ?title ?note ?housenamebs ?oldhousenumber ?owner1862
+        PREFIX stabs-rico:
+            <https://ld.staatsarchiv.bs.ch/ontologies/StABS-RiC/>
+        SELECT ?link ?identifier ?title ?note ?housenamebs ?oldhousenumber
+            ?owner1862
             WHERE {{
                     {{
                     ?link rico:identifier ?identifier ;
@@ -87,10 +110,12 @@ def query_dossiers(link_serie):
     ret = sparql.queryAndConvert()
 
     if not ret["results"]["bindings"]:
-        logging.warning(f'For the following serie, no dossier was found: {link_serie}.')
+        logging.warning('For the following serie, no dossier was found: '
+                        f'{link_serie}.'
+                        )
         return None
     else:
-        # Store the data as transformed list
+        # Store the data as transformed list.
         dossiers = []
         for r in ret["results"]["bindings"]:
             dossier = {}
@@ -101,30 +126,49 @@ def query_dossiers(link_serie):
 
 
 def get_dossiers(link_serie):
-    # Given a serie url, the function queries all corresponding dossier information of interest as dataframe
-    
+    """ Get all relevant dossier information.
+    Given a serie URI, all information of interest from the connected dossiers
+    where queried.
+
+    Args:
+        link_serie (str): URI of a serie.
+
+    Returns:
+        DataFrame or None: Metadata of connected dossiers.
+    """
     dossiers = query_dossiers(link_serie)
     if dossiers:
-        df_dossiers = pd.DataFrame(columns=['stabsId', 'title', 'houseName', 'oldHousenumber', 'owner1862',
-                                            'descriptiveNote', 'link'])
+        df_dossiers = pd.DataFrame(
+            columns=['stabsId', 'title', 'houseName', 'oldHousenumber',
+                     'owner1862', 'descriptiveNote', 'link']
+                     )
         for dossier in dossiers:
-            df_dossier = pd.DataFrame({'stabsId': [dossier.get('identifier')],
-                                       'title': [dossier.get('title')],
-                                       'houseName': [dossier.get('housenamebs')],
-                                       'oldHousenumber': [dossier.get('oldhousenumber')],
-                                       'owner1862': [dossier.get('owner1862')],
-                                       'descriptiveNote': [dossier.get('note')],
-                                       'link': [dossier.get('link')]
-                                       })
-            df_dossiers = pd.concat([df_dossiers, df_dossier], ignore_index=True)
+            df_dossier = pd.DataFrame(
+                {'stabsId': [dossier.get('identifier')],
+                 'title': [dossier.get('title')],
+                 'houseName': [dossier.get('housenamebs')],
+                 'oldHousenumber': [dossier.get('oldhousenumber')],
+                 'owner1862': [dossier.get('owner1862')],
+                 'descriptiveNote': [dossier.get('note')],
+                 'link': [dossier.get('link')]
+                 })
+            df_dossiers = pd.concat([df_dossiers, df_dossier],
+                                    ignore_index=True
+                                    )
         return df_dossiers
     else:
         return None
 
 
 def get_dossier_id(identifier):
-    # Based on the identifier of the dossier, create the project id
-    
-    identifier = re.split(" |\/", identifier)
-    identifier = f"HGB_{identifier[1]}_{int(identifier[2]):03}_{int(identifier[3]):03}"
-    return identifier  
+    """ Based on the identifier of the dossier, create the project id.
+    Args:
+        identifier (str): Identifier of the dossier.
+
+    Returns:
+        str: Project id of the dossier.
+    """
+    identifier_split = re.split(r'\s+|/', identifier)
+    id = f'HGB_{identifier_split[1]}_{int(identifier_split[2]):03}_'\
+        f'{int(identifier_split[3]):03}'
+    return id
