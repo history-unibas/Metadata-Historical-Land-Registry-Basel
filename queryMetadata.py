@@ -9,6 +9,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 import re
 import logging
+import requests
 
 
 def query_series():
@@ -172,3 +173,72 @@ def get_dossier_id(identifier):
     id = f'HGB_{identifier_split[1]}_{int(identifier_split[2]):03}_'\
         f'{int(identifier_split[3]):03}'
     return id
+
+
+def query_documents(link_serie):
+    """Given a serie URI, all connected documents where queried.
+    The query parameters of this function is optimized to query all documents
+    of the serie "Regesten Klingental", see record
+    https://ld.bs.ch/ais/Record/751516.
+
+    Args:
+        link_serie (str): URI of a serie.
+
+    Returns:
+        list or None: Metadata of connected documents.
+    """
+    sparql = SPARQLWrapper("https://ld.bs.ch/query/")
+    sparql.setReturnFormat(JSON)
+    sparql.setQuery("""
+        PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+        SELECT ?link ?identifier ?title ?type ?descriptivenote
+            ?isassociatedwithdate
+            WHERE {{
+                    {{
+                    ?link rico:identifier ?identifier ;
+                    rico:title ?title ;
+                    rico:type ?type ;
+                    rico:isOrWasIncludedIn <{}> .
+                    }}
+                OPTIONAL {{?link rico:descriptiveNote ?descriptivenote .}}
+                OPTIONAL {{?link rico:isAssociatedWithDate
+                    ?isassociatedwithdate .}}
+            }}
+            """.format(link_serie)
+                    )
+    ret = sparql.queryAndConvert()
+
+    if not ret["results"]["bindings"]:
+        logging.warning('For the following serie, no dossier was found: '
+                        f'{link_serie}.'
+                        )
+        return None
+    else:
+        # Store the data as transformed list.
+        dossiers = []
+        for r in ret["results"]["bindings"]:
+            dossier = {}
+            for key, val in r.items():
+                dossier[key] = val["value"]
+            dossiers.append(dossier)
+        return dossiers
+
+
+def get_date(link_date):
+    """Given the URI of a associated date, the expressed date is returned.
+    Args:
+        link_serie (str): URI of a associated date record.
+
+    Returns:
+        str or None: Associated date (if available).
+    """
+    r = requests.get(link_date + '?format=jsonld')
+    if r.status_code == requests.codes.ok:
+        return r.json()[
+            'https://www.ica.org/standards/RiC/ontology#expressedDate'
+            ]
+    else:
+        logging.warning('No associated date record found for '
+                        f'{link_date}. Return: {r.text} ({r}).'
+                        )
+        return None
