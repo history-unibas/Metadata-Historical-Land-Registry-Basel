@@ -30,7 +30,7 @@ def query_series():
             ?link rico:identifier ?identifier ;
             rico:title ?title ;
             rico:type "Akte"@ger ;
-            rico:isOrWasIncludedIn <https://ld.bs.ch/ais/Record/1027330> .
+            rico:isIncludedInTransitive <https://ld.bs.ch/ais/Record/1027330> .
             }
         }
         """
@@ -99,9 +99,9 @@ def query_dossiers(link_serie):
                     ?link rico:identifier ?identifier ;
                     rico:title ?title ;
                     rico:type "Akte"@ger ;
-                    rico:isOrWasIncludedIn <{}> .
+                    rico:isIncludedInTransitive <{}> .
                     }}
-                OPTIONAL {{?link rico:descriptiveNote ?note .}}
+                OPTIONAL {{?link rico:generalDescription ?note .}}
                 OPTIONAL {{?link stabs-rico:houseNameBS ?housenamebs .}}
                 OPTIONAL {{?link stabs-rico:oldHousenumber ?oldhousenumber .}}
                 OPTIONAL {{?link stabs-rico:owner1862 ?owner1862 .}}
@@ -198,9 +198,9 @@ def query_documents(link_serie):
                     ?link rico:identifier ?identifier ;
                     rico:title ?title ;
                     rico:type ?type ;
-                    rico:isOrWasIncludedIn <{}> .
+                    rico:isIncludedInTransitive <{}> .
                     }}
-                OPTIONAL {{?link rico:descriptiveNote ?descriptivenote .}}
+                OPTIONAL {{?link rico:generalDescription ?descriptivenote .}}
                 OPTIONAL {{?link rico:isAssociatedWithDate
                     ?isassociatedwithdate .}}
             }}
