@@ -198,7 +198,7 @@ def query_documents(link_serie):
                     ?link rico:identifier ?identifier ;
                     rico:title ?title ;
                     rico:type ?type ;
-                    rico:isIncludedInTransitive <{}> .
+                    rico:isDirectlyIncludedIn <{}> .
                     }}
                 OPTIONAL {{?link rico:generalDescription ?descriptivenote .}}
                 OPTIONAL {{?link rico:isAssociatedWithDate
