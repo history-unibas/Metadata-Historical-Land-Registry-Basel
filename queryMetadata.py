@@ -30,7 +30,7 @@ def query_series():
             ?link rico:identifier ?identifier ;
             rico:title ?title ;
             rico:type "Akte"@ger ;
-            rico:isIncludedInTransitive <https://ld.bs.ch/ais/Record/1027330> .
+            rico:isDirectlyIncludedIn <https://ld.bs.ch/ais/Record/1027330> .
             }
         }
         """
