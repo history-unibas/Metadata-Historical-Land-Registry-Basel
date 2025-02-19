@@ -99,7 +99,7 @@ def query_dossiers(link_serie):
                     ?link rico:identifier ?identifier ;
                     rico:title ?title ;
                     rico:type "Akte"@ger ;
-                    rico:isIncludedInTransitive <{}> .
+                    rico:isDirectlyIncludedIn <{}> .
                     }}
                 OPTIONAL {{?link rico:generalDescription ?note .}}
                 OPTIONAL {{?link stabs-rico:houseNameBS ?housenamebs .}}
